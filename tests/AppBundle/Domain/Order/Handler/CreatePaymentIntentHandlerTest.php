@@ -43,7 +43,7 @@ class CreatePaymentIntentHandlerTest extends TestCase
         $payment = new Payment();
 
         $order
-            ->getLastPayment(PaymentInterface::STATE_CART)
+            ->getLastPayment(/* PaymentInterface::STATE_CART */)
             ->willReturn($payment);
 
         $this->orderNumberAssigner
@@ -80,7 +80,7 @@ class CreatePaymentIntentHandlerTest extends TestCase
         $payment = new Payment();
 
         $order
-            ->getLastPayment(PaymentInterface::STATE_CART)
+            ->getLastPayment(/* PaymentInterface::STATE_CART */)
             ->willReturn($payment);
 
         $this->orderNumberAssigner

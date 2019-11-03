@@ -3,6 +3,7 @@
 namespace AppBundle\Controller;
 
 use AppBundle\DataType\TsRange;
+use AppBundle\Controller\Utils\StripeTrait;
 use AppBundle\Entity\Address;
 use AppBundle\Entity\Delivery;
 use AppBundle\Entity\LocalBusiness;
@@ -20,6 +21,7 @@ use Sylius\Component\Order\Context\CartContextInterface;
 use Sylius\Component\Order\Processor\OrderProcessorInterface;
 use Sylius\Component\Payment\Model\PaymentInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Translation\TranslatorInterface;
@@ -30,6 +32,8 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
  */
 class OrderController extends AbstractController
 {
+    use StripeTrait;
+
     private $objectManager;
     private $orderTimeHelper;
     private $logger;
@@ -152,13 +156,38 @@ class OrderController extends AbstractController
     }
 
     /**
+     * @Route("/confirm-payment", name="order_confirm_payment", methods={"POST"})
+     */
+    public function confirmPaymentAction(Request $request,
+        CartContextInterface $cartContext,
+        OrderManager $orderManager)
+    {
+        $order = $cartContext->getCart();
+
+        if (null === $order || null === $order->getRestaurant()) {
+
+            // TODO Validate order status
+            // TODO Throw 400 error
+        }
+
+        return $this->confirmPayment(
+            $request,
+            $order,
+            $orderManager,
+            $this->objectManager,
+            $this->logger
+        );
+    }
+
+    /**
      * @Route("/payment", name="order_payment")
      * @Template()
      */
     public function paymentAction(Request $request,
         OrderManager $orderManager,
         CartContextInterface $cartContext,
-        StripeManager $stripeManager)
+        StripeManager $stripeManager,
+        OrderProcessorInterface $orderProcessor)
     {
         $order = $cartContext->getCart();
 
@@ -167,16 +196,22 @@ class OrderController extends AbstractController
             return $this->redirectToRoute('homepage');
         }
 
+        $stripePayment = $order->getLastPayment(PaymentInterface::STATE_CART);
+
+        // if (null === $stripePayment) {
+        //     $orderProcessor->process($order);
+        //     $this->objectManager->flush();
+        // }
+
         // Make sure to call StripeManager::configurePayment()
         // It will resolve the Stripe account that will be used
-        $stripeManager->configurePayment(
-            $order->getLastPayment(PaymentInterface::STATE_CART)
-        );
+        $stripeManager->configurePayment($stripePayment);
 
         $form = $this->createForm(CheckoutPaymentType::class, $order);
 
         $parameters =  [
             'order' => $order,
+            'payment' => $stripePayment,
             'restaurant' => $order->getRestaurant(),
             'shipping_range' => $this->getShippingRange($order),
         ];
