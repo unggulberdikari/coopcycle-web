@@ -45,6 +45,10 @@
               {{ form_row(form.method) }}
             {% endif %}
 
+            {{ form_widget(form.stripePayment.stripeToken) }}
+
+            {{ form_row(form.stripePayment.cardholderName) }}
+
             <div class="form-group">
               <label class="control-label hidden" for="card-element">
                 {% trans %}order.payment.title{% endtrans %}
