@@ -11,7 +11,6 @@ use AppBundle\Utils\OrderTimeHelper;
 use Doctrine\ORM\EntityManagerInterface;
 use Prophecy\Argument;
 use Psr\Log\NullLogger;
-use SimpleBus\Message\Bus\MessageBus;
 use Stripe;
 use Sylius\Component\Order\Context\CartContextInterface;
 use Sylius\Component\Order\Processor\OrderProcessorInterface;
@@ -30,12 +29,10 @@ class OrderControllerTest extends TestCase
     public function setUp(): void
     {
         $this->objectManager = $this->prophesize(EntityManagerInterface::class);
-        $commandBus = $this->prophesize(MessageBus::class);
         $orderTimeHelper = $this->prophesize(OrderTimeHelper::class);
 
         $this->controller = new OrderController(
             $this->objectManager->reveal(),
-            $commandBus->reveal(),
             $orderTimeHelper->reveal(),
             new NullLogger()
         );
