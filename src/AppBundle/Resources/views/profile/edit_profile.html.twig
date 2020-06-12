@@ -2,6 +2,11 @@
 
 {% form_theme form 'bootstrap_3_layout.html.twig' %}
 
+{% block _update_profile_loopeatDisconnect_row %}
+  {# @TODO: Figure out why this does not work, and remove the CSS hack #}
+  {{ form_widget(form.loopeatDisconnect) }}
+{% endblock _update_profile_loopeatDisconnect_row %}
+
 {% block content %}
     <h2 class="page-header">
       {% trans %}profile.editProfile{%  endtrans %}

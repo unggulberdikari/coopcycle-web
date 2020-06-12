@@ -189,6 +189,11 @@ class ProfileController extends Controller
         $editForm->handleRequest($request);
 
         if ($editForm->isSubmitted() && $editForm->isValid()) {
+
+            if ($editForm->getClickedButton() && 'loopeatDisconnect' === $editForm->getClickedButton()->getName()) {
+                $user->clearLoopEatCredentials();
+            }
+
             $userManager = $this->getDoctrine()->getManagerForClass(ApiUser::class);
             $userManager->persist($user);
             $userManager->flush();
