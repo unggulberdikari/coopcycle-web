@@ -99,6 +99,7 @@ install:
   - sudo ln -s /etc/nginx/sites-available/test.coopcycle.org.conf /etc/nginx/sites-enabled/
 
 before_script:
+  - curl -v http://127.0.0.1:5000
   - phpenv config-rm xdebug.ini
   - echo 'date.timezone = "Europe/Paris"' >> ~/.phpenv/versions/$(phpenv version-name)/etc/conf.d/travis.ini
   # Configure JSON Web Token
