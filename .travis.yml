@@ -99,6 +99,7 @@ install:
   - sudo ln -s /etc/nginx/sites-available/test.coopcycle.org.conf /etc/nginx/sites-enabled/
 
 before_script:
+  - docker ps
   - phpenv config-rm xdebug.ini
   - echo 'date.timezone = "Europe/Paris"' >> ~/.phpenv/versions/$(phpenv version-name)/etc/conf.d/travis.ini
   # Configure JSON Web Token
@@ -128,7 +129,7 @@ before_script:
   - pm2 start pm2.config.js --env=test
 
 script:
-  - curl -v http://127.0.0.1:5000
+  # - curl -v http://127.0.0.1:5000
   # - curl 'http://localhost:5000/route/v1/bicycle/2.3706188,48.877821;2.385706,48.887031?overview=full'
   - php vendor/bin/phpstan analyse
   - node node_modules/.bin/eslint --quiet js/app/
