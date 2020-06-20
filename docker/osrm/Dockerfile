@@ -1,8 +1,6 @@
-FROM osrm/osrm-backend:v5.19.0
+FROM osrm/osrm-backend:v5.22.0
 
-# Fix "can't execute 'ssl_helper'"
-# https://github.com/Yelp/dumb-init/issues/73
-RUN apk --no-cache add openssl wget
+RUN apt-get update && apt-get install -y openssl wget
 
 COPY ./start.sh /usr/local/bin/osrm-start
 
