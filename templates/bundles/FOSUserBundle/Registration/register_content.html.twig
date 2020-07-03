@@ -16,7 +16,7 @@
         <button type="submit" class="btn btn-block btn-lg btn-primary">{{ 'registration.submit'|trans }}</button>
       </div>
       <div class="help-block">
-        Vous pourrez facilement vous désinscrire à tout moment via les liens de désinscription présents dans chacun de nos emails
+        {% trans from 'messages' %}authentication.unsubscribe{% endtrans %}
       </div>
     {{ form_end(form) }}
     <hr>

@@ -802,6 +802,7 @@ authentication.forgot_password: Forgot password?
 authentication.not_registered_yet: Not registered yet?
 authentication.create_account: Create your account
 authentication.already_registered: Already registered?
+authentication.unsubscribe: You can easily unsubscribe at any time via the unsubscribe links in each of our emails
 authentication.sign_in: Sign in
 maintenance.text: Site under maintenance - We will be back soon
 api_apps.breadcrumb: API clients
