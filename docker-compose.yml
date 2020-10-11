@@ -186,6 +186,17 @@ services:
     depends_on:
       - osrm
 
+  centrifugo:
+    image: centrifugo/centrifugo
+    links:
+      - nginx
+    volumes:
+      - ./centrifugo:/centrifugo
+    command: centrifugo -c config.json --admin
+    environment:
+      - CENTRIFUGO_TOKEN_HMAC_SECRET_KEY
+      - CENTRIFUGO_API_KEY
+
 volumes:
   node_modules:
   pg_data:

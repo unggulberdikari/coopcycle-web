@@ -109,7 +109,8 @@
         "odolbeau/phone-number-bundle": "^3.1",
         "league/omnipay": "^3",
         "mercadopago/dx-php": "^2.1.1",
-        "egulias/email-validator": "^2.1"
+        "egulias/email-validator": "^2.1",
+        "centrifugal/phpcent": "~3.0"
     },
     "require-dev": {
         "symfony/phpunit-bridge": "^5.0",
