@@ -868,3 +868,7 @@ services:
       - 'http://centrifugo:8000/api'
       - '%env(CENTRIFUGO_API_KEY)%'
       - '%env(CENTRIFUGO_TOKEN_HMAC_SECRET_KEY)%'
+
+  AppBundle\Service\SocketIoManager:
+    arguments:
+      $namespace: '%centrifugo_namespace%'
