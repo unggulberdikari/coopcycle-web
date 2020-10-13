@@ -231,7 +231,7 @@ class Order extends BaseOrder implements OrderInterface
 {
     protected $customer;
 
-    protected $restaurant;
+    protected $target;
 
     /**
      * @Assert\Valid(groups={"cart"})
@@ -425,12 +425,23 @@ class Order extends BaseOrder implements OrderInterface
      */
     public function getRestaurant(): ?LocalBusiness
     {
-        return $this->restaurant;
+        if (null === $this->target) {
+
+            return null;
+        }
+
+        return $this->target->getRestaurant();
     }
 
+    /**
+     * @SerializedName("restaurant")
+     */
     public function setRestaurant(?LocalBusiness $restaurant): void
     {
-        $this->restaurant = $restaurant;
+        $target = new OrderTarget();
+        $target->setRestaurant($restaurant);
+
+        $this->target = $target;
     }
 
     /**
@@ -958,13 +969,11 @@ class Order extends BaseOrder implements OrderInterface
 
     public function getTarget(): ?OrderTarget
     {
-        if (null !== $this->restaurant) {
-            $target = new OrderTarget();
-            $target->setRestaurant($this->restaurant);
+        return $this->target;
+    }
 
-            return $target;
-        }
-
-        return null;
+    public function setTarget(?OrderTarget $target): void
+    {
+        $this->target = $target;
     }
 }

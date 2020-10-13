@@ -4,6 +4,7 @@ namespace AppBundle\Action\Restaurant;
 
 use AppBundle\Entity\Delivery;
 use AppBundle\Entity\Sylius\Order;
+use AppBundle\Entity\Sylius\OrderTarget;
 use Doctrine\ORM\Query\Expr;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\Request;
@@ -24,7 +25,8 @@ class Deliveries
         $date = new \DateTime($request->get('date'));
 
         $qb->join(Order::class, 'o', Expr\Join::WITH, 'o.id = d.order');
-        $qb->andWhere('o.restaurant = :restaurant');
+        $qb->join(OrderTarget::class, 't', Expr\Join::WITH, 'o.target = t.id');
+        $qb->andWhere('t.restaurant = :restaurant');
         $qb->setParameter('restaurant', $data);
 
         $qb->andWhere('o.state != :state_cart');

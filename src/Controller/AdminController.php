@@ -25,6 +25,7 @@ use AppBundle\Entity\Store;
 use AppBundle\Entity\Sylius\Customer;
 use AppBundle\Entity\Sylius\Order;
 use AppBundle\Entity\Sylius\OrderRepository;
+use AppBundle\Entity\Sylius\OrderTarget;
 use AppBundle\Entity\Tag;
 use AppBundle\Entity\Task;
 use AppBundle\Entity\TimeSlot;
@@ -607,7 +608,8 @@ class AdminController extends Controller
         // Allow filtering by store & restaurant with KnpPaginator
         $qb->leftJoin(Store::class, 's', Expr\Join::WITH, 's.id = d.store');
         $qb->leftJoin(Order::class, 'o', Expr\Join::WITH, 'o.id = d.order');
-        $qb->leftJoin(LocalBusiness::class, 'r', Expr\Join::WITH, 'r.id = o.restaurant');
+        $qb->leftJoin(OrderTarget::class, 't', Expr\Join::WITH, 'o.target = t.id');
+        $qb->leftJoin(LocalBusiness::class, 'r', Expr\Join::WITH, 't.restaurant = r.id');
 
         $deliveries = $this->get('knp_paginator')->paginate(
             $qb,

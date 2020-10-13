@@ -12,6 +12,7 @@ use AppBundle\Entity\Restaurant\PreparationTimeRule;
 use AppBundle\Entity\ReusablePackaging;
 use AppBundle\Entity\StripeAccount;
 use AppBundle\Entity\Sylius\Order;
+use AppBundle\Entity\Sylius\OrderTarget;
 use AppBundle\Entity\Sylius\ProductTaxon;
 use AppBundle\Entity\Zone;
 use AppBundle\Form\ClosingRuleType;
@@ -35,6 +36,7 @@ use AppBundle\Utils\RestaurantStats;
 use AppBundle\Utils\ValidationUtils;
 use Cocur\Slugify\SlugifyInterface;
 use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\ORM\Query\Expr;
 use Lexik\Bundle\JWTAuthenticationBundle\Services\JWTManagerInterface;
 use Lexik\Bundle\JWTAuthenticationBundle\Encoder\JWTEncoderInterface;
 use MercadoPago;
@@ -290,7 +292,8 @@ trait RestaurantTrait
 
         $qb = $this->get('sylius.repository.order')
             ->createQueryBuilder('o')
-            ->andWhere('o.restaurant = :restaurant')
+            ->join(OrderTarget::class, 't', Expr\Join::WITH, 'o.target = t.id')
+            ->andWhere('t.restaurant = :restaurant')
             ->andWhere('OVERLAPS(o.shippingTimeRange, CAST(:range AS tsrange)) = TRUE')
             ->andWhere('o.state != :state')
             ->setParameter('restaurant', $restaurant)
