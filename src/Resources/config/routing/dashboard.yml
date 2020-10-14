@@ -328,7 +328,7 @@ dashboard_store_delivery_new:
         routes:
             stores: dashboard_stores
             store: dashboard_store
-            success: dashboard_store_deliveries
+            success: dashboard
         show_left_menu: false
     methods:  [ GET, POST ]
 

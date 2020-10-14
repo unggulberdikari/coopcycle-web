@@ -219,7 +219,7 @@ trait StoreTrait
                     $orderManager->onDemand($order);
                     $this->get('sylius.manager.order')->flush();
 
-                    return $this->redirectToRoute($routes['success'], ['id' => $id]);
+                    return $this->redirectToRoute($routes['success']);
 
                 } catch (NoRuleMatchedException $e) {
                     $message = $this->get('translator')->trans('delivery.price.error.priceCalculation', [], 'validators');
@@ -238,7 +238,7 @@ trait StoreTrait
 
                 // TODO Add flash message
 
-                return $this->redirectToRoute($routes['success'], ['id' => $id]);
+                return $this->redirectToRoute($routes['success']);
             }
         }
 
