@@ -45,6 +45,7 @@ class ProfileController extends Controller
 {
     const ITEMS_PER_PAGE = 20;
 
+    use OrderTrait;
     use UserTrait;
 
     public function indexAction(Request $request,
