@@ -4,19 +4,34 @@ import _ from 'lodash'
 import { totalTaxExcluded } from '../../utils/tax'
 
 export const selectIsDeliveryEnabled = createSelector(
-  state => state.cart.restaurant.fulfillmentMethods,
-  (fulfillmentMethods) => _.includes(fulfillmentMethods, 'delivery')
+  state => state.cart.restaurant,
+  (restaurant) => {
+    if (restaurant && Array.isArray(restaurant.fulfillmentMethods)) {
+      return _.includes(restaurant.fulfillmentMethods, 'delivery')
+    }
+    return true
+  }
 )
 
 export const selectIsCollectionEnabled = createSelector(
-  state => state.cart.restaurant.fulfillmentMethods,
-  (fulfillmentMethods) => _.includes(fulfillmentMethods, 'collection')
+  state => state.cart.restaurant,
+  (restaurant) => {
+    if (restaurant && Array.isArray(restaurant.fulfillmentMethods)) {
+      return _.includes(restaurant.fulfillmentMethods, 'collection')
+    }
+    return false
+  }
 )
 
 export const selectIsSameRestaurant = createSelector(
   state => state.cart,
   state => state.restaurant,
-  (cart, restaurant) => cart.restaurant.id === restaurant.id
+  (cart, restaurant) => {
+    if (cart.restaurant) {
+      return cart.restaurant.id === restaurant.id
+    }
+    return false
+  }
 )
 
 export const selectItems = createSelector(

@@ -17,8 +17,15 @@ class OrderListener
 
         if (null !== $target) {
             if (!$entityManager->contains($target)) {
+
+                $hub = $target->getHub();
+
+                $params = null !== $hub ?
+                    ['hub' => $hub] : ['restaurant' => $target->getRestaurant()];
+
                 $existingTarget = $entityManager->getRepository(OrderTarget::class)
-                    ->findOneBy(['restaurant' => $target->getRestaurant()]);
+                    ->findOneBy($params);
+
                 if (null !== $existingTarget) {
                     $order->setTarget($existingTarget);
                 } else {

@@ -2,6 +2,8 @@
 
 namespace Tests\AppBundle\Form\Checkout\Action\Validator;
 
+use AppBundle\Entity\Hub;
+use AppBundle\Entity\HubRepository;
 use AppBundle\Entity\LocalBusiness;
 use AppBundle\Entity\Sylius\Order;
 use AppBundle\Entity\Sylius\Product;
@@ -22,7 +24,9 @@ class AddProductToCartValidatorTest extends ConstraintValidatorTestCase
 
     protected function createValidator()
     {
-        return new AddProductToCartValidator();
+        $this->hubRepository = $this->prophesize(HubRepository::class);
+
+        return new AddProductToCartValidator($this->hubRepository->reveal());
     }
 
     public function testDisabledProduct()
@@ -93,6 +97,36 @@ class AddProductToCartValidatorTest extends ConstraintValidatorTestCase
             ->buildViolation($constraint->notSameRestaurant)
             ->atPath('property.path.restaurant')
             ->assertRaised();
+    }
+
+    public function testNotSameRestaurantInCartWithHub()
+    {
+        $product = $this->prophesize(Product::class);
+        $product->isEnabled()->willReturn(true);
+
+        $restaurant = $this->prophesize(LocalBusiness::class);
+        $restaurant->hasProduct($product->reveal())->willReturn(true);
+
+        $hub = new Hub();
+        $this->hubRepository
+            ->findOneByRestaurant($restaurant->reveal())
+            ->willReturn($hub);
+
+        $otherRestaurant = $this->prophesize(LocalBusiness::class);
+
+        $cart = $this->prophesize(Order::class);
+        $cart->getRestaurant()->willReturn($otherRestaurant->reveal());
+
+        $action = new AddProductToCartAction();
+        $action->product = $product->reveal();
+        $action->restaurant = $restaurant->reveal();
+        $action->cart = $cart->reveal();
+        $action->clear = false;
+
+        $constraint = new AddProductToCart();
+        $violations = $this->validator->validate($action, $constraint);
+
+        $this->assertNoViolation();
     }
 
     public function testNotSameRestaurantInCartWithClear()

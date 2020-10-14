@@ -3,12 +3,15 @@
 namespace Tests\AppBundle\Service;
 
 use AppBundle\Entity\Contract;
+use AppBundle\Entity\Hub;
 use AppBundle\Entity\Restaurant;
 use AppBundle\Entity\StripeAccount;
+use AppBundle\Entity\Sylius\OrderTarget;
 use AppBundle\Entity\Sylius\Payment;
 use AppBundle\Service\SettingsManager;
 use AppBundle\Service\StripeManager;
 use AppBundle\Sylius\Order\OrderInterface;
+use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Persistence\ManagerRegistry;
 use PHPUnit\Framework\TestCase;
 use Prophecy\Argument;
@@ -108,6 +111,11 @@ class StripeManagerTest extends TestCase
         $order
             ->getRestaurant()
             ->willReturn($restaurant);
+        $order
+            ->getTarget()
+            ->willReturn(
+                OrderTarget::withRestaurant($restaurant)
+            );
 
         $payment->setOrder($order->reveal());
 
@@ -145,6 +153,11 @@ class StripeManagerTest extends TestCase
         $order
             ->getRestaurant()
             ->willReturn($restaurant);
+        $order
+            ->getTarget()
+            ->willReturn(
+                OrderTarget::withRestaurant($restaurant)
+            );
 
         $payment->setOrder($order->reveal());
 
@@ -186,6 +199,11 @@ class StripeManagerTest extends TestCase
         $order
             ->getRestaurant()
             ->willReturn($restaurant);
+        $order
+            ->getTarget()
+            ->willReturn(
+                OrderTarget::withRestaurant($restaurant)
+            );
 
         $payment->setOrder($order->reveal());
 
@@ -218,6 +236,11 @@ class StripeManagerTest extends TestCase
             ->getRestaurant()
             ->willReturn($restaurant);
         $order
+            ->getTarget()
+            ->willReturn(
+                OrderTarget::withRestaurant($restaurant)
+            );
+        $order
             ->getLastPayment(PaymentInterface::STATE_NEW)
             ->willReturn($payment);
         $order
@@ -239,6 +262,81 @@ class StripeManagerTest extends TestCase
             'description' => 'Order 000001',
             'capture' => 'false',
             'application_fee' => 250
+        ]);
+
+        $this->stripeManager->authorize($payment);
+    }
+
+    public function testAuthorizeWithHubCreatesSeparateChargesAndTransfers()
+    {
+        $payment = new Payment();
+        $payment->setAmount(3000);
+        $payment->setStripeToken('tok_123456');
+        $payment->setCurrencyCode('EUR');
+
+        $stripeAccount = $this->prophesize(StripeAccount::class);
+        $order = $this->prophesize(OrderInterface::class);
+        $contract = $this->prophesize(Contract::class);
+
+        $restaurant1 = $this->createRestaurant('acct_123', $paysStripeFee = true);
+        $restaurant2 = $this->createRestaurant('acct_456', $paysStripeFee = true);
+
+        $hub = $this->prophesize(Hub::class);
+        $hub
+            ->getRestaurants()
+            ->willReturn([ $restaurant1, $restaurant2 ]);
+        $hub
+            ->getAmountForRestaurant(
+                $order->reveal(),
+                Argument::type(Restaurant::class)
+            )
+            ->will(function ($args) use ($restaurant1, $restaurant2) {
+                if ($args[1] === $restaurant1) {
+                    return 1000;
+                }
+                if ($args[1] === $restaurant2) {
+                    return 500;
+                }
+            });
+
+        $target = new OrderTarget();
+        $target->setHub($hub->reveal());
+
+        $order
+            ->getNumber()
+            ->willReturn('000001');
+        $order
+            ->getTotal()
+            ->willReturn(3000);
+        $order
+            ->getFeeTotal()
+            ->willReturn(750);
+        $order
+            ->getTarget()
+            ->willReturn($target);
+
+        $payment->setOrder($order->reveal());
+
+        $this->shouldSendStripeRequest('POST', '/v1/charges', [
+            'amount' => 3000,
+            'currency' => 'eur',
+            'source' => 'tok_123456',
+            'description' => 'Order 000001',
+            'capture' => 'false',
+            'transfer_group' => 'Order 000001',
+        ]);
+
+        $this->shouldSendStripeRequest('POST', '/v1/transfers', [
+            'amount' => 1000,
+            'currency' => 'eur',
+            'destination' => 'acct_123',
+            'transfer_group' => 'Order 000001',
+        ]);
+        $this->shouldSendStripeRequest('POST', '/v1/transfers', [
+            'amount' => 500,
+            'currency' => 'eur',
+            'destination' => 'acct_456',
+            'transfer_group' => 'Order 000001',
         ]);
 
         $this->stripeManager->authorize($payment);

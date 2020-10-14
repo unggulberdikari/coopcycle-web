@@ -328,6 +328,8 @@ window.initMap = function() {
     country: getCountry(),
   }
 
+  console.log(state)
+
   store = createStoreFromPreloadedState(state)
 
   Modal.setAppElement(container)

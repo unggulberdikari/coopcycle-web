@@ -11,6 +11,7 @@ use AppBundle\Sylius\Order\OrderInterface;
 use AppBundle\Sylius\Order\OrderItemInterface;
 use AppBundle\Entity\User;
 use AppBundle\Entity\Address;
+use AppBundle\Entity\Hub;
 use AppBundle\Entity\LocalBusiness;
 use AppBundle\Entity\LocalBusinessRepository;
 use AppBundle\Entity\Restaurant\Pledge;
@@ -185,6 +186,37 @@ class RestaurantController extends AbstractController
     }
 
     /**
+     * @Route("/hub/{id}-{slug}", name="hub",
+     *   requirements={
+     *     "id"="(\d+)",
+     *     "slug"="([a-z0-9-]+)"
+     *   },
+     *   defaults={
+     *     "slug"="",
+     *     "type"="restaurant"
+     *   }
+     * )
+     */
+    public function hubAction($id, $slug, Request $request,
+        SlugifyInterface $slugify,
+        CartContextInterface $cartContext,
+        IriConverterInterface $iriConverter)
+    {
+        $hub = $this->getDoctrine()->getRepository(Hub::class)->find($id);
+
+        return $this->render('restaurant/list.html.twig', array(
+            'count' => count($hub->getRestaurants()),
+            'restaurants' => $hub->getRestaurants(),
+            'page' => 1,
+            'pages' => 1,
+            'geohash' => '',
+            'addresses_normalized' => [],
+            'address' => null,
+            'local_business_context' => $this->getDoctrine()->getRepository(LocalBusiness::class)->getContext(),
+        ));
+    }
+
+    /**
      * @Route("/{type}/{id}-{slug}", name="restaurant",
      *   requirements={
      *     "type"="(restaurant|store)",
@@ -248,12 +280,29 @@ class RestaurantController extends AbstractController
 
         $cart = $cartContext->getCart();
 
+        $hubRepository = $this->getDoctrine()->getRepository(Hub::class);
+
         $isAnotherRestaurant = $this->isAnotherRestaurant($cart, $restaurant);
 
-        if ($isAnotherRestaurant) {
-            $cart->clearItems();
-            $cart->setShippingTimeRange(null);
-            $cart->setRestaurant($restaurant);
+        $isSingle = $cart->getTarget()->getRestaurant() !== null;
+        if ($isSingle && $cart->getTarget()->getRestaurant() !== $restaurant) {
+
+            if ($cart->getTarget()->getRestaurant() !== $restaurant) {
+
+                $hub      = $hubRepository->findOneByRestaurant($restaurant);
+                $otherHub = $hubRepository->findOneByRestaurant($cart->getTarget()->getRestaurant());
+
+                if (!$hub || $hub === $otherHub) {
+                    $cart->clearItems();
+                    $cart->setShippingTimeRange(null);
+                    $cart->setRestaurant($restaurant);
+                }
+            }
+
+        } else {
+
+
+
         }
 
         $user = $this->getUser();
@@ -433,6 +482,12 @@ class RestaurantController extends AbstractController
             $cart->setShippingTimeRange(null);
             $cart->setRestaurant($restaurant);
         }
+
+        // This may "upgrade" the order target,
+        // i.e switch from pointing to a single restaurant to pointing to a hub
+        $action->handleTarget(
+            $this->getDoctrine()->getRepository(Hub::class)
+        );
 
         $cartItem = $this->orderItemFactory->createNew();
 

@@ -52,3 +52,7 @@ services:
   AppBundle\Validator\Constraints\UserWithSameEmailNotExistsValidator:
     tags:
       - { name: validator.constraint_validator }
+
+  AppBundle\Form\Checkout\Action\Validator\AddProductToCartValidator:
+    tags:
+      - { name: validator.constraint_validator }

@@ -2,11 +2,17 @@
 
 namespace AppBundle\Form\Checkout\Action\Validator;
 
+use AppBundle\Entity\HubRepository;
 use Symfony\Component\Validator\Constraint;
 use Symfony\Component\Validator\ConstraintValidator;
 
 class AddProductToCartValidator extends ConstraintValidator
 {
+    public function __construct(HubRepository $hubRepository)
+    {
+        $this->hubRepository = $hubRepository;
+    }
+
     public function validate($value, Constraint $constraint)
     {
         if (!$value->product->isEnabled()) {
@@ -30,12 +36,14 @@ class AddProductToCartValidator extends ConstraintValidator
         }
 
         if ($value->cart->getRestaurant() !== $value->restaurant && !$value->clear) {
-            $this->context
-                ->buildViolation($constraint->notSameRestaurant)
-                ->atPath('restaurant')
-                ->addViolation();
 
-            return;
+            $hub = $this->hubRepository->findOneByRestaurant($value->restaurant);
+            if (null === $hub) {
+                $this->context
+                    ->buildViolation($constraint->notSameRestaurant)
+                    ->atPath('restaurant')
+                    ->addViolation();
+            }
         }
     }
 }

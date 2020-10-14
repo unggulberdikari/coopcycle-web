@@ -58,6 +58,11 @@ class OrderTarget
         return $this;
     }
 
+    public function isHub(): bool
+    {
+        return $this->hub !== null;
+    }
+
     /* BEGIN Common interface between Restaurant & Hub */
 
     public function getAddress()

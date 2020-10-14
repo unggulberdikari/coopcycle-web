@@ -68,9 +68,14 @@ final class RestaurantCartContext implements CartContextInterface
                 $this->session->remove($this->sessionKeyName);
             } else {
                 try {
+
                     // We need to call a method on the restaurant object
                     // so that Doctrine eventually triggers EntityNotFoundException
-                    $restaurant = $cart->getRestaurant()->getName();
+                    $noop = $cart->getTarget()->getRestaurant();
+                    if (null !== $noop) {
+                        $noop->isEnabled();
+                    }
+
                 } catch (EntityNotFoundException $e) {
                     $cart = null;
                     $this->session->remove($this->sessionKeyName);

@@ -6,6 +6,7 @@ use AppBundle\Entity\LocalBusiness\ClosingRulesTrait;
 use AppBundle\Entity\LocalBusiness\FulfillmentMethodsTrait;
 use AppBundle\Entity\LocalBusiness\ShippingOptionsInterface;
 use AppBundle\Entity\LocalBusiness\ShippingOptionsTrait;
+use AppBundle\Sylius\Order\OrderInterface;
 use Doctrine\Common\Collections\ArrayCollection;
 
 class Hub
@@ -103,5 +104,20 @@ class Hub
     public function addRestaurant($restaurant)
     {
         $this->restaurants->add($restaurant);
+    }
+
+    /**
+     * @return int
+     */
+    public function getAmountForRestaurant(OrderInterface $order, LocalBusiness $restaurant): int
+    {
+        $total = 0;
+        foreach ($order->getItems() as $item) {
+            if ($restaurant->hasProduct($item->getVariant()->getProduct())) {
+                $total += $item->getTotal();
+            }
+        }
+
+        return $total;
     }
 }

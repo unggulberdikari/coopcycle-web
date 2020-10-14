@@ -225,26 +225,53 @@ class StripeManager
 
         $stripeOptions = [];
 
-        if (null !== $order->getRestaurant()) {
+        if (null !== $target = $order->getTarget()) {
 
             $livemode = $this->settingsManager->isStripeLivemode();
-            $stripeAccount = $order->getRestaurant()->getStripeAccount($livemode);
 
-            if (!is_null($stripeAccount)) {
+            if ($target->isHub()) {
 
-                $restaurantPaysStripeFee = $order->getRestaurant()->getContract()->isRestaurantPaysStripeFee();
-                $applicationFee = $order->getFeeTotal();
+                $stripeParams['transfer_group'] = sprintf('Order %s', $order->getNumber());
 
-                if ($restaurantPaysStripeFee) {
-                    // needed only when using direct charges (the charge is linked to the restaurant's Stripe account)
-                    $payment->setStripeUserId($stripeAccount->getStripeUserId());
-                    $stripeOptions['stripe_account'] = $stripeAccount->getStripeUserId();
-                    $stripeParams['application_fee'] = $applicationFee;
-                } else {
-                    $stripeParams['destination'] = array(
-                        'account' => $stripeAccount->getStripeUserId(),
-                        'amount' => $order->getTotal() - $applicationFee
-                    );
+                $hub = $target->getHub();
+
+                // @see https://stripe.com/docs/connect/charges-transfers
+
+                $charge = Stripe\Charge::create($stripeParams);
+
+                foreach ($hub->getRestaurants() as $restaurant) {
+                    $stripeAccount = $restaurant->getStripeAccount($livemode);
+
+                    Stripe\Transfer::create([
+                        'amount' => $hub->getAmountForRestaurant($order, $restaurant),
+                        'currency' => strtolower($payment->getCurrencyCode()),
+                        'destination' => $stripeAccount->getStripeUserId(),
+                        'transfer_group' => sprintf('Order %s', $order->getNumber()),
+                    ]);
+                }
+
+                return $charge;
+
+            } else {
+
+                $stripeAccount = $order->getRestaurant()->getStripeAccount($livemode);
+
+                if (!is_null($stripeAccount)) {
+
+                    $restaurantPaysStripeFee = $order->getRestaurant()->getContract()->isRestaurantPaysStripeFee();
+                    $applicationFee = $order->getFeeTotal();
+
+                    if ($restaurantPaysStripeFee) {
+                        // needed only when using direct charges (the charge is linked to the restaurant's Stripe account)
+                        $payment->setStripeUserId($stripeAccount->getStripeUserId());
+                        $stripeOptions['stripe_account'] = $stripeAccount->getStripeUserId();
+                        $stripeParams['application_fee'] = $applicationFee;
+                    } else {
+                        $stripeParams['destination'] = array(
+                            'account' => $stripeAccount->getStripeUserId(),
+                            'amount' => $order->getTotal() - $applicationFee
+                        );
+                    }
                 }
             }
         }

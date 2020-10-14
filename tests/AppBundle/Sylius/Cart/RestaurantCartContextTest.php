@@ -6,6 +6,7 @@ use AppBundle\Sylius\Order\OrderInterface;
 use AppBundle\Sylius\Order\OrderFactory;
 use AppBundle\Entity\LocalBusiness;
 use AppBundle\Entity\LocalBusinessRepository;
+use AppBundle\Entity\Sylius\OrderTarget;
 use AppBundle\Sylius\Cart\RestaurantCartContext;
 use Doctrine\ORM\EntityNotFoundException;
 use PHPUnit\Framework\TestCase;
@@ -118,6 +119,7 @@ class RestaurantCartContextTest extends TestCase
 
         $cartProphecy = $this->prophesize(OrderInterface::class);
         $cartProphecy->getRestaurant()->willReturn($restaurant->reveal());
+        $cartProphecy->getTarget()->willReturn(OrderTarget::withRestaurant($restaurant->reveal()));
         $cartProphecy->getChannel()->willReturn($this->webChannel->reveal());
 
         $expectedCart = $cartProphecy->reveal();
@@ -204,6 +206,7 @@ class RestaurantCartContextTest extends TestCase
 
         $cartProphecy = $this->prophesize(OrderInterface::class);
         $cartProphecy->getRestaurant()->willReturn($restaurant->reveal());
+        $cartProphecy->getTarget()->willReturn(OrderTarget::withRestaurant($restaurant->reveal()));
         $cartProphecy->getChannel()->willReturn($this->webChannel->reveal());
 
         $expectedCart = $cartProphecy->reveal();
