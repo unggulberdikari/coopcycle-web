@@ -37,7 +37,7 @@ class OrganizationSubscriber implements EventSubscriber
 
         $entityManager = $args->getObjectManager();
 
-        // If the persisted entiy is a LocalBusiness or a Store,
+        // If the persisted entity is a LocalBusiness or a Store,
         // and it is not linked to an Organization,
         // create an Organization with the same name
         if ($entity instanceof LocalBusiness || $entity instanceof Store) {
@@ -49,7 +49,7 @@ class OrganizationSubscriber implements EventSubscriber
             }
         }
 
-        // If the persisted entiy is a Task, and it's not linked to an Organization,
+        // If the persisted entity is a Task, and it's not linked to an Organization,
         // try to find an Organization depending on the context
         if ($entity instanceof Task) {
 

@@ -1,0 +1,75 @@
+{% extends "base.html.twig" %}
+
+{% block menu %}
+  {% include "dashboard/nav.html.twig" %}
+{% endblock %}
+
+{% block banner %}
+  {# {% include '_partials/maintenance.html.twig' %} #}
+{% endblock %}
+
+{% block body %}
+<section style="background-color: #ECFFFD; border-bottom: 1px solid #BDFFF6; margin-top: -20px" class="py-5 mb-5">
+  <div class="container container--full-height">
+  {% block subnav %}{% endblock %}
+  </div>
+</section>
+<div class="container container--full-height">
+  <div class="row">
+      {# <ul class="nav nav-pills nav-stacked">
+        <li
+          class="{{ app.request.attributes.get('_route') in [ 'fos_user_profile_show', 'profile_edit' ] ? 'active' : '' }}">
+          <a href="{{ path('fos_user_profile_show') }}">
+            <i class="fa fa-list-ul mr-1"></i>
+            <span>{% trans %}profile.myPersonalInfo{% endtrans %}</span>
+          </a>
+        </li>
+        <li
+          class="{{ app.request.attributes.get('_route') == 'profile_orders' ? 'active' : '' }}">
+          <a href="{{ path('profile_orders') }}">
+            <i class="fa fa-cube mr-1"></i>
+            <span>{% trans %}profile.myOrders{% endtrans %}</span>
+          </a>
+        </li>
+        <li
+          class="{{ app.request.attributes.get('_route') in [ 'profile_addresses', 'profile_address_new' ] ? 'active' : '' }}">
+          <a href="{{ path('profile_addresses') }}">
+            <i class="fa fa-map-marker mr-1"></i>
+            <span>{% trans %}profile.myAddresses{% endtrans %}</span>
+          </a>
+        </li>
+        {% if is_granted('ROLE_COURIER') %}
+        <li
+          class="{{ app.request.attributes.get('_route') == 'profile_tasks' ? 'active' : '' }}">
+          <a href="{{ path('profile_tasks') }}">
+            <i class="fa fa-bicycle mr-1"></i>
+            <span>{{ 'profile.myDeliveries'|trans }}</span>
+          </a>
+        </li>
+        <li
+          class="{{ app.request.attributes.get('_route') == 'profile_tracking' ? 'active' : '' }}">
+          <a href="{{ path('profile_tracking', { date: 'now'|date('Y-m-d') }) }}">
+            <i class="fa fa-location-arrow mr-1"></i>
+            <span>{% trans %}profile.myTracking{% endtrans %}</span>
+          </a>
+        </li>
+        {% endif %}
+      </ul> #}
+  <div class="col-xs-12">
+    {% block content %}{% endblock %}
+  </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block footer %}
+{% endblock %}
+
+{% block styles %}
+  {{ encore_entry_link_tags('widgets-admin') }}
+{% endblock %}
+
+{% block scripts_common %}
+  {{ encore_entry_script_tags('widgets-admin') }}
+  {% block scripts %}{% endblock %}
+{% endblock %}
