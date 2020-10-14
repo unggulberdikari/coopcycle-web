@@ -18,6 +18,7 @@ use Carbon\Carbon;
 use Doctrine\ORM\Query\Expr;
 use FOS\UserBundle\Model\UserManagerInterface;
 use Knp\Component\Pager\PaginatorInterface;
+use Sylius\Component\Product\Factory\ProductVariantFactoryInterface;
 use Sylius\Component\Taxation\Resolver\TaxRateResolverInterface;
 use Symfony\Component\Form\FormError;
 use Symfony\Component\HttpFoundation\Request;
@@ -184,7 +185,8 @@ trait StoreTrait
     public function newStoreDeliveryAction($id, Request $request,
         OrderManager $orderManager,
         DeliveryManager $deliveryManager,
-        TaxRateResolverInterface $taxRateResolver)
+        TaxRateResolverInterface $taxRateResolver,
+        ProductVariantFactoryInterface $productVariantFactory)
     {
         $routes = $request->attributes->get('routes');
 
@@ -240,7 +242,7 @@ trait StoreTrait
             }
         }
 
-        $variant = $this->get('sylius.factory.product_variant')
+        $variant = $productVariantFactory
             ->createForDelivery($delivery, 0);
 
         $rate = $taxRateResolver->resolve($variant, [
