@@ -30,35 +30,35 @@ class DashboardController extends AbstractController
     protected function getRestaurantRoutes()
     {
         return [
-            'restaurants' => 'profile_restaurants',
-            'restaurant' => 'profile_restaurant',
-            'menu_taxons' => 'profile_restaurant_menu_taxons',
-            'menu_taxon' => 'profile_restaurant_menu_taxon',
-            'products' => 'profile_restaurant_products',
-            'product_options' => 'profile_restaurant_product_options',
-            'product_new' => 'profile_restaurant_product_new',
-            'dashboard' => 'profile_restaurant_dashboard',
-            'planning' => 'profile_restaurant_planning',
-            'stripe_oauth_redirect' => 'profile_restaurant_stripe_oauth_redirect',
-            'preparation_time' => 'profile_restaurant_preparation_time',
-            'stats' => 'profile_restaurant_stats',
-            'deposit_refund' => 'profile_restaurant_deposit_refund',
-            'promotions' => 'profile_restaurant_promotions',
-            'promotion_new' => 'profile_restaurant_new_promotion',
-            'promotion' => 'profile_restaurant_promotion',
-            'product_option_preview' => 'profile_restaurant_product_option_preview',
-            'reusable_packaging_new' => 'profile_restaurant_new_reusable_packaging',
+            'restaurants' => 'dashboard_restaurants',
+            'restaurant' => 'dashboard_restaurant',
+            'menu_taxons' => 'dashboard_restaurant_menu_taxons',
+            'menu_taxon' => 'dashboard_restaurant_menu_taxon',
+            'products' => 'dashboard_restaurant_products',
+            'product_options' => 'dashboard_restaurant_product_options',
+            'product_new' => 'dashboard_restaurant_product_new',
+            'dashboard' => 'dashboard_restaurant_dashboard',
+            'planning' => 'dashboard_restaurant_planning',
+            'stripe_oauth_redirect' => 'dashboard_restaurant_stripe_oauth_redirect',
+            'preparation_time' => 'dashboard_restaurant_preparation_time',
+            'stats' => 'dashboard_restaurant_stats',
+            'deposit_refund' => 'dashboard_restaurant_deposit_refund',
+            'promotions' => 'dashboard_restaurant_promotions',
+            'promotion_new' => 'dashboard_restaurant_new_promotion',
+            'promotion' => 'dashboard_restaurant_promotion',
+            'product_option_preview' => 'dashboard_restaurant_product_option_preview',
+            'reusable_packaging_new' => 'dashboard_restaurant_new_reusable_packaging',
         ];
     }
 
     protected function getDeliveryRoutes()
     {
         return [
-            'list'      => 'profile_tasks',
-            'pick'      => 'profile_delivery_pick',
-            'deliver'   => 'profile_delivery_deliver',
-            'view'      => 'profile_delivery',
-            'store_new' => 'profile_store_delivery_new'
+            'list'      => 'dashboard_tasks',
+            'pick'      => 'dashboard_delivery_pick',
+            'deliver'   => 'dashboard_delivery_deliver',
+            'view'      => 'dashboard_delivery',
+            'store_new' => 'dashboard_store_delivery_new'
         ];
     }
 
@@ -88,7 +88,7 @@ class DashboardController extends AbstractController
     }
 
     /**
-     * @Route("/dashboard", name="customer_dashboard", methods={"GET"})
+     * @Route("/dashboard", name="dashboard", methods={"GET"})
      */
     public function indexAction(Request $request,
         SlugifyInterface $slugify,
